@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@flemist/copy-glob-flat": "0.0.5",
-    "@flemist/test-utils": "0.0.9",
+    "@flemist/test-utils": "0.1.4",
     "@flemist/test-variants": "0.0.16",
     "@rollup/plugin-alias": "3.1.9",
     "@rollup/plugin-commonjs": "=21.1.0",
@@ -61,6 +61,7 @@
     "cpy-cli": "=3.1.1",
     "eslint": "8.18.0",
     "eslint-config-pro": "3.0.16",
+    "expect": "^29.4.2",
     "globby": "=11.1.0",
     "mocha": "9.2.2",
     "nyc": "15.1.0",
