@@ -1,5 +1,7 @@
 import { parseFoodDb } from './parseFoodDb'
-import {FoodInfoSRLegacy} from "src/db/contracts";
+import {Food, FoodInfoSRLegacy} from 'src/db/contracts'
+import * as fs from 'fs'
+import {getAllNutrients, getMinPortion, getNutrient, getNutrientAmount, isNatural} from 'src/db/helpers'
 
 describe('parseFoodDb', function () {
   this.timeout(5 * 60 * 1000)
@@ -89,7 +91,7 @@ describe('parseFoodDb', function () {
               number  : expectNumberAsString('int'),
               name    : expect.any(String),
               rank    : expectNumber('int'),
-              unitName: expect.any(String),
+              unitName: 'g',
             },
             dataPoints            : expectNumber('int'),
             foodNutrientDerivation: {
@@ -143,47 +145,83 @@ describe('parseFoodDb', function () {
     })
     expect(data.SRLegacyFoods)
       .toMatchObject(foodInfoSRLegacy.SRLegacyFoods)
+
+    // const allFoodCategories = new Set()
+    // data.SRLegacyFoods.forEach((foodInfo: FoodInfo) => {
+    //   allFoodCategories.add(foodInfo.foodCategory.description)
+    // })
+    // console.log(`allFoodCategories: '${[...allFoodCategories].sort().join('\',\n\'')}'`)
+
+    data.SRLegacyFoods.forEach((foodInfo: Food) => {
+      if (![
+        'American Indian/Alaska Native Foods',
+        'Baby Foods',
+        'Baked Products',
+        'Beef Products',
+        'Beverages',
+        'Breakfast Cereals',
+        'Cereal Grains and Pasta',
+        'Dairy and Egg Products',
+        'Fast Foods',
+        'Fats and Oils',
+        'Finfish and Shellfish Products',
+        'Fruits and Fruit Juices',
+        'Lamb, Veal, and Game Products',
+        'Legumes and Legume Products',
+        'Meals, Entrees, and Side Dishes',
+        'Nut and Seed Products',
+        'Pork Products',
+        'Poultry Products',
+        'Restaurant Foods',
+        'Sausages and Luncheon Meats',
+        'Snacks',
+        'Soups, Sauces, and Gravies',
+        'Spices and Herbs',
+        'Sweets',
+        'Vegetables and Vegetable Products',
+      ].includes(foodInfo.foodCategory.description)) {
+        throw new Error(`unknown foodCategory.description: ${foodInfo.foodCategory.description}`)
+      }
+    })
+
     console.log(`count: ${data.SRLegacyFoods.length}`)
 
-    function getMinMax(obj: any, minMax?: any, keyOrIndex?: string | number) {
+    function getMinMax(obj: any, minMax?: any) {
       if (obj == null) {
         throw new Error('obj is null')
       }
 
       if (typeof obj === 'number' || typeof obj === 'boolean') {
-        if (!Array.isArray(minMax[keyOrIndex])) {
-          minMax[keyOrIndex] = [obj, obj]
-          return
+        if (!Array.isArray(minMax)) {
+          minMax = [obj, obj]
+          return minMax
         }
 
-        if (obj < minMax[keyOrIndex][0]) {
-          minMax[keyOrIndex][0] = obj
+        if (obj < minMax[0]) {
+          minMax[0] = obj
         }
-        if (obj > minMax[keyOrIndex][1]) {
-          minMax[keyOrIndex][1] = obj
+        if (obj > minMax[1]) {
+          minMax[1] = obj
         }
-        return
+        return minMax
       }
 
       if (typeof obj === 'string') {
-        // collect list of first 100 unique strings to a Set
-        if (minMax[keyOrIndex] instanceof Set) {
-          if (minMax[keyOrIndex].size < 100) {
-            minMax[keyOrIndex].add(obj)
+        // collect list of first 1000 unique strings to a Set
+        if (minMax instanceof Set) {
+          if (minMax.size < 1000) {
+            minMax.add(obj)
           }
         }
         else {
-          minMax[keyOrIndex] = new Set([obj])
+          minMax = new Set([obj])
         }
-        return
+        return minMax
       }
 
       if (Array.isArray(obj)) {
-        if (minMax == null) {
-          minMax = []
-        }
         for (let i = 0; i < obj.length; i++) {
-          getMinMax(obj[i], minMax, i)
+          minMax = getMinMax(obj[i], minMax)
         }
         return minMax
       }
@@ -194,7 +232,7 @@ describe('parseFoodDb', function () {
         }
         for (const key in obj) {
           if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            getMinMax(obj[key], minMax, key)
+            minMax[key] = getMinMax(obj[key], minMax[key])
           }
         }
         return minMax
@@ -206,5 +244,81 @@ describe('parseFoodDb', function () {
     const minMax = getMinMax(data.SRLegacyFoods)
 
     debugger
+  })
+
+  it('search', async function () {
+
+    const data: FoodInfoSRLegacy = await parseFoodDb({
+      dbPath: 'tmp/data/FoodData_Central_sr_legacy_food_json_2021-10-28.json',
+    })
+
+    const allNutrients = getAllNutrients(data.SRLegacyFoods)
+
+    const potassium = getNutrient({
+      nutrients: allNutrients,
+      filter: nutrient => /potassium/i.test(nutrient.nutrient.name),
+    })
+
+    // ищем продукты богатые калием (не меньше 1% от суточной нормы на 100 грамм продукта)
+    const found = data.SRLegacyFoods.filter(food => {
+      if (!isNatural(food)) {
+        return false
+      }
+
+      const amount = getNutrientAmount({
+        food,
+        nutrientId: potassium.nutrient.id,
+      })
+
+      if (amount == null) {
+        return false
+      }
+
+      return true
+    })
+
+    type ResultItem = {
+      amount: number // g
+      portion: number // g
+      amountPerPortion: number // g
+      food: Food
+    }
+
+    const result: ResultItem[] = found.map(food => {
+      const amount = getNutrientAmount({
+        food,
+        nutrientId: potassium.nutrient.id,
+      })
+
+      const portion = getMinPortion(food)?.gramWeight ?? 100
+
+      return {
+        amount,
+        portion,
+        amountPerPortion: amount * portion / 100,
+        food            : food,
+      }
+    })
+
+    result.sort((a, b) => {
+      return a.amountPerPortion > b.amountPerPortion ? -1 : 1
+    })
+
+    const csvCells: string[][] = [
+      ['amount', 'portion', 'amountPerPortion', 'category', 'description'],
+      ...result.slice(0, 1000).map(item => {
+        return [
+          item.amount + '',
+          item.portion + '',
+          item.amountPerPortion + '',
+          item.food.foodCategory.description,
+          item.food.description,
+        ]
+      }),
+    ]
+
+    const csv = csvCells.map(cells => cells.join('\t')).join('\n')
+
+    await fs.promises.writeFile('tmp/report.csv', csv, { encoding: 'utf8' })
   })
 })
