@@ -94,7 +94,13 @@ export function isNatural(food: Food) {
   return true
 }
 
-/** Я скорее всего могу это купить в продуктовом магазине */
-export function isAvailable(food: Food) {
-  return false
+/**
+ * true: Я скорее всего могу это купить в продуктовом магазине
+ * false: Я скорее всего не могу это купить в продуктовом магазине
+ * null: Этот продукт еще не проверен
+ */
+export function isAvailable(food: Food): boolean | null {
+
+
+  return null
 }

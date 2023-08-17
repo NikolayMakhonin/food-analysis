@@ -1,7 +1,7 @@
 import { parseFoodDb } from './parseFoodDb'
 import {Food, FoodInfoSRLegacy} from 'src/db/contracts'
 import * as fs from 'fs'
-import {getAllNutrients, getMinPortion, getNutrient, getNutrientAmount, isNatural} from 'src/db/helpers'
+import {getAllNutrients, getMinPortion, getNutrient, getNutrientAmount, isAvailable, isNatural} from 'src/db/helpers'
 
 describe('parseFoodDb', function () {
   this.timeout(5 * 60 * 1000)
@@ -247,7 +247,6 @@ describe('parseFoodDb', function () {
   })
 
   it('search', async function () {
-
     const data: FoodInfoSRLegacy = await parseFoodDb({
       dbPath: 'tmp/data/FoodData_Central_sr_legacy_food_json_2021-10-28.json',
     })
@@ -320,5 +319,48 @@ describe('parseFoodDb', function () {
     const csv = csvCells.map(cells => cells.join('\t')).join('\n')
 
     await fs.promises.writeFile('tmp/report.csv', csv, { encoding: 'utf8' })
+  })
+
+  it('filter', async function () {
+    const data: FoodInfoSRLegacy = await parseFoodDb({
+      dbPath: 'tmp/data/FoodData_Central_sr_legacy_food_json_2021-10-28.json',
+    })
+
+    const allNutrients = getAllNutrients(data.SRLegacyFoods)
+
+    const found = data.SRLegacyFoods.filter(food => {
+      if (!isNatural(food)) {
+        return false
+      }
+
+      if (isAvailable(food) != null) {
+        return false
+      }
+
+      return true
+    })
+
+    // const report = found.map(food => {
+    //   return [
+    //     food.fdcId,
+    //     food.foodCategory.description,
+    //     food.description,
+    //   ].join('\t')
+    // }).join('\n')
+
+    const csvCells: string[][] = [
+      ['fdcId', 'category', 'description'],
+      ...found.map(food => {
+        return [
+          food.fdcId + '',
+          food.foodCategory.description,
+          food.description,
+        ]
+      }),
+    ]
+
+    const csv = csvCells.map(cells => cells.join('\t')).join('\n')
+
+    await fs.promises.writeFile('tmp/filter.csv', csv, { encoding: 'utf8' })
   })
 })
