@@ -6,20 +6,14 @@ type MeatType = 'beef' | 'pork' | 'chicken' | 'lamb'
 
 type MeatPart =
   'breast'
-  | 'thigh'
   | 'wing'
   | 'leg'
   | 'drumstick'
-  | 'back'
-  | 'neck'
-  | 'gizzard'
-  | 'heart'
-  | 'liver'
-  | 'skin'
-  | 'wing tip'
-  | 'wing meat'
-  | 'wing skin'
-  | 'wing meat and skin'
+  | 'loin'
+  | 'shoulder'
+  | 'rib'
+  | 'feet'
+  | 'ground'
 
 type CookType = 'roasted' | 'boiled' | 'braised' | 'steamed' | 'fried' | 'baked'
 
@@ -113,6 +107,26 @@ export function getMeatPart(food: Food): MeatPart[] {
   }
   if (/\b(drumstick)\b/i.test(food.description)) {
     result.push('drumstick')
+  }
+
+  if (/\b(loin|sirloin)\b/i.test(food.description)) {
+    result.push('loin')
+  }
+  else if (/\b(ribs?|spareribs?|backribs?)\b/i.test(food.description)) {
+    result.push('rib')
+  }
+  else if (/\b(leg|ham|flank)\b/i.test(food.description)) {
+    result.push('leg')
+  }
+  else if (/\b(shoulder|bacon|blade)\b/i.test(food.description)) {
+    result.push('shoulder')
+  }
+
+  if (/\b(feet)\b/i.test(food.description)) {
+    result.push('feet')
+  }
+  if (/\b(ground)\b/i.test(food.description)) {
+    result.push('ground')
   }
   return result
 }
@@ -208,7 +222,7 @@ export function isNatural(food: Food) {
     return false
   }
 
-  if (/\b(bison|game)\b/i.test(food.description)) {
+  if (/\b(bison|game|variety|composite|or)\b/i.test(food.description)) {
     return false
   }
 
