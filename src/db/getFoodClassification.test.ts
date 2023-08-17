@@ -1,5 +1,5 @@
 import { parseFoodDb } from './parseFoodDb'
-import {FoodInfoSRLegacy} from 'src/db/contracts'
+import {Food, FoodInfoSRLegacy} from 'src/db/contracts'
 import {
   getAllNutrients,
 } from 'src/db/helpers'
@@ -15,11 +15,26 @@ describe('getFoodClassification', function () {
 
     const allNutrients = getAllNutrients(data.SRLegacyFoods)
 
+    function foodError(valuesName: string, values: string[], food: Food) {
+      console.error(`${valuesName} [${values.join(',')}]: ${food.foodCategory.description} > ${food.description}`)
+    }
+
     for (const food of data.SRLegacyFoods) {
       if (!isNatural(food)) {
         continue
       }
       const classification = getFoodClassification(food)
+      if (classification.type.length !== 1) {
+        foodError('type', classification.type, food)
+      }
+      if (classification.type.includes('meat')) {
+        if (classification.meatType.length !== 1) {
+          foodError('meatType', classification.meatType, food)
+        }
+        if (classification.meatPart.length !== 1) {
+          foodError('meatPart', [String(classification.meatPart)], food)
+        }
+      }
     }
   })
 })
