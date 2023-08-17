@@ -7,8 +7,9 @@ import {
   getNutrient,
   getNutrientAmount,
   isAvailable,
-  isNatural,
+
 } from 'src/db/helpers'
+import {isNatural} from 'src/db/getFoodClassification'
 
 describe('parseFoodDb', function () {
   this.timeout(5 * 60 * 1000)
