@@ -52,6 +52,18 @@ export function getMinPortion(food: Food): Portion | null {
   }, null as typeof food.foodPortions[0] | null)
 }
 
+export function getFoodKind(food: Food): string {
+  if (food.foodCategory.description === 'Beef Products') {
+    if (/\b(roasted)\b/.test(food.description)) {
+      return 'beef roasted'
+    }
+    if (/\b(boiled)\b/.test(food.description)) {
+      return 'beef boiled'
+    }
+  }
+  return null
+}
+
 export function isNatural(food: Food) {
   if (![
     // 'American Indian/Alaska Native Foods',
@@ -87,7 +99,25 @@ export function isNatural(food: Food) {
     return false
   }
 
-  if (/\b(pasta)\b/.test(food.description)) {
+  if (
+    /\b(raw)\b/.test(food.description)
+    && (![
+      'Beverages',
+      'Dairy and Egg Products',
+      'Fats and Oils',
+      'Fruits and Fruit Juices',
+      'Nut and Seed Products',
+      'Spices and Herbs',
+      'Vegetables and Vegetable Products',
+    ].includes(food.foodCategory.description))
+  ) {
+    return false
+  }
+
+  if (
+    food.foodCategory.description === 'Cereal Grains and Pasta'
+    && /\b(pasta)\b/.test(food.description)
+  ) {
     return false
   }
 
