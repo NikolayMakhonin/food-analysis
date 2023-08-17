@@ -1,7 +1,14 @@
 import { parseFoodDb } from './parseFoodDb'
 import {Food, FoodInfoSRLegacy} from 'src/db/contracts'
 import * as fs from 'fs'
-import {getAllNutrients, getMinPortion, getNutrient, getNutrientAmount, isAvailable, isNatural} from 'src/db/helpers'
+import {
+  getAllNutrients,
+  getMinPortion,
+  getNutrient,
+  getNutrientAmount,
+  isAvailable,
+  isNatural,
+} from 'src/db/helpers'
 
 describe('parseFoodDb', function () {
   this.timeout(5 * 60 * 1000)
@@ -255,7 +262,7 @@ describe('parseFoodDb', function () {
 
     const potassium = getNutrient({
       nutrients: allNutrients,
-      filter: nutrient => /potassium/i.test(nutrient.nutrient.name),
+      filter   : nutrient => /potassium/i.test(nutrient.nutrient.name),
     })
 
     // ищем продукты богатые калием (не меньше 1% от суточной нормы на 100 грамм продукта)
@@ -329,9 +336,9 @@ describe('parseFoodDb', function () {
     const allNutrients = getAllNutrients(data.SRLegacyFoods)
 
     const found = data.SRLegacyFoods.filter(food => {
-      if (!isNatural(food)) {
-        return false
-      }
+      // if (!isNatural(food)) {
+      //   return false
+      // }
 
       if (isAvailable(food) != null) {
         return false
@@ -340,21 +347,24 @@ describe('parseFoodDb', function () {
       return true
     })
 
-    // const report = found.map(food => {
-    //   return [
-    //     food.fdcId,
-    //     food.foodCategory.description,
-    //     food.description,
-    //   ].join('\t')
-    // }).join('\n')
+    found.sort((a, b) => {
+      if (a.foodCategory.description !== b.foodCategory.description) {
+        return a.foodCategory.description < b.foodCategory.description ? -1 : 1
+      }
+      if (a.description !== b.description) {
+        return a.description < b.description ? -1 : 1
+      }
+      return a.fdcId < b.fdcId ? -1 : 1
+    })
 
     const csvCells: string[][] = [
-      ['fdcId', 'category', 'description'],
+      ['fdcId', 'category', 'description', 'natural'],
       ...found.map(food => {
         return [
           food.fdcId + '',
           food.foodCategory.description,
           food.description,
+          isNatural(food) ? '1' : '0',
         ]
       }),
     ]
