@@ -8,11 +8,12 @@ type MeatPart =
   'breast'
   | 'wing'
   | 'leg'
-  | 'drumstick'
-  | 'loin'
-  | 'shoulder'
-  | 'rib'
-  | 'feet'
+  // | 'drumstick'
+  // | 'loin'
+  // | 'shoulder'
+  // | 'rib'
+  // | 'feet'
+  | 'meat'
   | 'ground'
 
 type CookType = 'roasted' | 'boiled' | 'braised' | 'steamed' | 'fried' | 'baked'
@@ -99,32 +100,55 @@ export function getMeatType(food: Food): MeatType[] {
 
 export function getMeatPart(food: Food): MeatPart[] {
   const result: MeatPart[] = []
-  if (/\b(breast)\b/i.test(food.description)) {
-    result.push('breast')
-  }
-  if (/\b(wing)\b/i.test(food.description)) {
-    result.push('wing')
-  }
-  if (/\b(drumstick)\b/i.test(food.description)) {
-    result.push('drumstick')
+  // if (/\b(breast|brisket)\b/i.test(food.description)) {
+  //   result.push('breast')
+  // }
+  // if (/\b(wing)\b/i.test(food.description)) {
+  //   result.push('wing')
+  // }
+  // if (/\b(drumstick)\b/i.test(food.description)) {
+  //   result.push('drumstick')
+  // }
+  //
+  // if (/\b(loin|sirloin|tenderloin)\b/i.test(food.description)) {
+  //   result.push('loin')
+  // }
+  // else if (/\b(ribs?|spareribs?|backribs?|center cut)\b/i.test(food.description)) {
+  //   result.push('rib')
+  // }
+  // else if (/\b(leg|ham|flank|round)\b/i.test(food.description)) {
+  //   result.push('leg')
+  // }
+  // else if (/\b(shoulder|bacon|blade)\b/i.test(food.description)) {
+  //   result.push('shoulder')
+  // }
+  //
+  // if (/\b(feet)\b/i.test(food.description)) {
+  //   result.push('feet')
+  // }
+
+  if (
+    food.foodCategory.description === 'Beef Products'
+    || food.foodCategory.description === 'Pork Products'
+    || food.foodCategory.description === 'Lamb, Veal, and Game Products'
+  ) {
+    if (/\b(hocks?|plate|cuts?|crosscuts?|chuck|breast|brisket|loin|sirloin|tenderloin|ribs?|spareribs?|backribs?|leg|ham|flank|round|shoulder|bacon|blade|feet)\b/i.test(food.description)) {
+      result.push('meat')
+    }
   }
 
-  if (/\b(loin|sirloin)\b/i.test(food.description)) {
-    result.push('loin')
-  }
-  else if (/\b(ribs?|spareribs?|backribs?)\b/i.test(food.description)) {
-    result.push('rib')
-  }
-  else if (/\b(leg|ham|flank)\b/i.test(food.description)) {
-    result.push('leg')
-  }
-  else if (/\b(shoulder|bacon|blade)\b/i.test(food.description)) {
-    result.push('shoulder')
+  if (food.foodCategory.description === 'Poultry Products') {
+    if (/\b(breast)\b/i.test(food.description)) {
+      result.push('breast')
+    }
+    if (/\b(wing)\b/i.test(food.description)) {
+      result.push('wing')
+    }
+    if (/\b(leg|drumstick)\b/i.test(food.description)) {
+      result.push('leg')
+    }
   }
 
-  if (/\b(feet)\b/i.test(food.description)) {
-    result.push('feet')
-  }
   if (/\b(ground)\b/i.test(food.description)) {
     result.push('ground')
   }
