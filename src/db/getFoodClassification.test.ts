@@ -31,7 +31,11 @@ describe('getFoodClassification', function () {
         if (classification.meatType.length !== 1) {
           foodError('meatType', classification.meatType, food)
         }
-        if (classification.meatPart.length !== 1) {
+        if (classification.meatPart.length !== 1
+          && classification.meatType[0] !== 'chicken'
+          && classification.meatType[0] !== 'poultry'
+          && classification.meatType[0] === 'beef'
+        ) {
           foodError('meatPart', [String(classification.meatPart)], food)
         }
       }

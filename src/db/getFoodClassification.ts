@@ -2,7 +2,7 @@ import {Food} from 'src/db/contracts'
 
 type FoodType = 'meat' | 'vegetable' | 'fruit' | 'oil' | 'milk' | 'egg' | 'fish' | 'seafood' | 'juice' | 'species'
 
-type MeatType = 'beef' | 'pork' | 'chicken' | 'lamb'
+type MeatType = 'beef' | 'pork' | 'chicken' | 'lamb' | 'poultry'
 
 type MeatPart =
   'breast'
@@ -14,7 +14,16 @@ type MeatPart =
   // | 'rib'
   // | 'feet'
   | 'meat'
+  | 'fat'
   | 'ground'
+  | 'heart'
+  | 'liver'
+  | 'giblets'
+  | 'skin'
+  | 'meat and skin'
+  | 'dark meat'
+  | 'light meat'
+  | 'gizzard'
 
 type CookType = 'roasted' | 'boiled' | 'braised' | 'steamed' | 'fried' | 'baked'
 
@@ -85,7 +94,12 @@ export function getMeatType(food: Food): MeatType[] {
     result.push('pork')
   }
   if (food.foodCategory.description === 'Poultry Products') {
-    result.push('chicken')
+    if (/\b(chicken|hen)\b/i.test(food.description)) {
+      result.push('chicken')
+    }
+    else {
+      result.push('poultry')
+    }
   }
   if (food.foodCategory.description === 'Lamb, Veal, and Game Products') {
     if (/\b(lamb)\b/i.test(food.description)) {
@@ -132,20 +146,55 @@ export function getMeatPart(food: Food): MeatPart[] {
     || food.foodCategory.description === 'Pork Products'
     || food.foodCategory.description === 'Lamb, Veal, and Game Products'
   ) {
-    if (/\b(hocks?|plate|cuts?|crosscuts?|chuck|breast|brisket|loin|sirloin|tenderloin|ribs?|spareribs?|backribs?|leg|ham|flank|round|shoulder|bacon|blade|feet)\b/i.test(food.description)) {
+    if (/\b((fore)?shank|hocks?|plate|cuts?|crosscuts?|chuck|breast|brisket|loin|sirloin|tenderloin|ribs?|spareribs?|backribs?|leg|ham|flank|round|shoulder|bacon|blade|feet)\b/i.test(food.description)) {
       result.push('meat')
+    }
+    if (/\b(fat)\b/i.test(food.description) && !/\b(separable fat)\b/i.test(food.description)) {
+      result.push('fat')
     }
   }
 
   if (food.foodCategory.description === 'Poultry Products') {
-    if (/\b(breast)\b/i.test(food.description)) {
-      result.push('breast')
+    // if (/\b(breast)\b/i.test(food.description)) {
+    //   result.push('breast')
+    // }
+    // if (/\b(leg|drumstick)\b/i.test(food.description)) {
+    //   result.push('leg')
+    // }
+    if (/\b(heart)\b/i.test(food.description)) {
+      result.push('heart')
     }
-    if (/\b(wing)\b/i.test(food.description)) {
-      result.push('wing')
+    if (/\b(liver)\b/i.test(food.description)) {
+      result.push('liver')
     }
-    if (/\b(leg|drumstick)\b/i.test(food.description)) {
-      result.push('leg')
+    if (/\b(gizzard)\b/i.test(food.description)) {
+      result.push('gizzard')
+    }
+    if (
+      /\b(skin)\b/i.test(food.description)
+      && !/\b(without skin)\b/i.test(food.description)
+    ) {
+      result.push('skin')
+    }
+    // if (/\b(meat and skin|with skin)\b/i.test(food.description)) {
+    //   result.push('meat and skin')
+    // }
+    // else if (/\b(skin)\b/i.test(food.description) && !/\b(without skin)\b/i.test(food.description)) {
+    //   if (/\b(thigh|feet|back|neck|light meat|dark meat|leg|drumstick)\b/i.test(food.description)) {
+    //     result.push('meat and skin')
+    //   }
+    //   else {
+    //     result.push('skin')
+    //   }
+    // }
+    if (/\b(thigh|feet|wing|back|neck|dark meat|leg|drumstick)\b/i.test(food.description)) {
+      result.push('dark meat')
+    }
+    if (/\b(breast|light meat)\b/i.test(food.description)) {
+      result.push('light meat')
+    }
+    if (/\b(giblets?)\b/i.test(food.description)) {
+      result.push('giblets')
     }
   }
 
