@@ -3,8 +3,8 @@ import {Food, Nutrient, Portion} from 'src/db/contracts'
 export function getAllNutrients(food: Food[]): Nutrient[] {
   const nutrients = new Map<number, Nutrient>()
   for (const foodItem of food) {
-    for (const nutrient of foodItem.foodNutrients) {
-      nutrients.set(nutrient.nutrient.id, nutrient)
+    for (const nutrientAmount of foodItem.foodNutrients) {
+      nutrients.set(nutrientAmount.nutrient.id, nutrientAmount.nutrient)
     }
   }
   return Array.from(nutrients.values())
@@ -21,7 +21,7 @@ export function getNutrient({
   for (const nutrient of nutrients) {
     if (filter(nutrient)) {
       if (found != null) {
-        throw new Error(`Found multiple nutrients: ${nutrient.nutrient.name} and ${found.nutrient.name}`)
+        throw new Error(`Found multiple nutrients: ${nutrient.name} and ${found.name}`)
       }
       found = nutrient
     }
@@ -36,11 +36,11 @@ export function getNutrientAmount({
   food: Food,
   nutrientId: number
 }) {
-  const nutrient = food.foodNutrients.find(nutrient => nutrient.nutrient.id === nutrientId)
-  if (nutrient == null) {
+  const nutrientAmount = food.foodNutrients.find(nutrientAmount => nutrientAmount.nutrient.id === nutrientId)
+  if (nutrientAmount == null) {
     return null
   }
-  return nutrient.amount
+  return nutrientAmount.amount
 }
 
 export function getMinPortion(food: Food): Portion | null {

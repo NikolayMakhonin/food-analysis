@@ -268,6 +268,31 @@ export function nutrientNameToIds(name: string): NutrientId[] | null {
   ) {
     ids.push('fat trans polyenoic')
   }
+  if (
+    /\b(Cystine)\b/i.test(name)
+  ) {
+    ids.push('cystine')
+  }
+  if (
+    /\b(Cysteine)\b/i.test(name)
+  ) {
+    ids.push('cysteine')
+  }
+  if (
+    /\b(glutamine|glutamic acid)\b/i.test(name)
+  ) {
+    ids.push('glutamine')
+  }
+  if (
+    /\b(hydroxyproline)\b/i.test(name)
+  ) {
+    ids.push('hydroxyproline')
+  }
+  if (
+    /\b(proline)\b/i.test(name)
+  ) {
+    ids.push('proline')
+  }
 
 
 

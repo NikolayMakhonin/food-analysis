@@ -261,10 +261,11 @@ describe('parseFoodDb', function () {
 
     const allNutrients = getAllNutrients(data.SRLegacyFoods)
 
-    const potassium = getNutrient({
-      nutrients: allNutrients,
-      filter   : nutrient => /potassium/i.test(nutrient.nutrient.name),
-    })
+    // const potassium = getNutrient({
+    //   nutrients: allNutrients,
+    //   filter   : nutrient => /potassium/i.test(nutrient.name),
+    // })
+    const nutrientId = 1271
 
     // ищем продукты богатые калием (не меньше 1% от суточной нормы на 100 грамм продукта)
     const found = data.SRLegacyFoods.filter(food => {
@@ -274,7 +275,7 @@ describe('parseFoodDb', function () {
 
       const amount = getNutrientAmount({
         food,
-        nutrientId: potassium.nutrient.id,
+        nutrientId,
       })
 
       if (amount == null) {
@@ -294,7 +295,7 @@ describe('parseFoodDb', function () {
     const result: ResultItem[] = found.map(food => {
       const amount = getNutrientAmount({
         food,
-        nutrientId: potassium.nutrient.id,
+        nutrientId,
       })
 
       const portion = getMinPortion(food)?.gramWeight ?? 100

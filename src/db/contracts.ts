@@ -1,17 +1,19 @@
 export type Nutrient = {
+  /** int */
+  id: number
+  /** int */
+  number: string
+  name: string
+  /** int */
+  rank: number
+  unitName: 'g'
+}
+
+export type NutrientAmount = {
   type: 'FoodNutrient'
   /** int */
   id: number
-  nutrient: {
-    /** int */
-    id: number
-    /** int */
-    number: string
-    name: string
-    /** int */
-    rank: number
-    unitName: 'g'
-  }
+  nutrient: Nutrient
   /** int */
   dataPoints: number
   foodNutrientDerivation: {
@@ -47,7 +49,7 @@ export type Portion = {
 export type Food = {
   foodClass: 'FinalFood'
   description: string
-  foodNutrients: Nutrient[]
+  foodNutrients: NutrientAmount[]
   /** empty array */
   foodAttributes: any[]
   nutrientConversionFactors: {
